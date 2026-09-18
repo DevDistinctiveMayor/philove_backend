@@ -11,8 +11,12 @@ import multipart from "@fastify/multipart";
 import { uploadRoutes } from "./routes/upload.js";
 import { postRoutes } from "./routes/posts.js";
 const app = Fastify();
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+    throw new Error("JWT_SECRET is not configured");
+}
 await app.register(jwt, {
-    secret: process.env.JWT_SECRET || "change-this-in-production",
+    secret: jwtSecret,
 });
 await app.register(postRoutes);
 app.register(authRoutes, {
@@ -46,11 +50,12 @@ app.get("/", async () => {
     };
 });
 try {
+    const port = Number(process.env.PORT) || 5000;
     await app.listen({
-        port: 5000,
+        port,
         host: "0.0.0.0",
     });
-    console.log("🚀 Server running on http://localhost:5000");
+    console.log(`🚀 Philove API running on port ${port}`);
 }
 catch (err) {
     app.log.error(err);
